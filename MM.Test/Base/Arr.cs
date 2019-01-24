@@ -30,6 +30,7 @@ namespace MM.Test.Base
         readonly List<TestModel> list1_M = new List<TestModel>() { new TestModel(){ Name = "张三", Passowrd = "asd", Age = 10 }, new TestModel() { Name = "李四", Passowrd = "123", Age = 19 } };
         readonly List<TestModel> list2_M = new List<TestModel>() { new TestModel() { Name = "张三", Passowrd = "asd" }, new TestModel() { Name = "王五", Passowrd = "123" } };
 
+
         #region 数组 
         /// <summary>
         /// 差集
@@ -44,7 +45,6 @@ namespace MM.Test.Base
             var list = _Arr.Except(list1, list2);
             Log.Debug(list.ToJson());
             Assert.True(list.Count > 0);
-
 
             var list_M = _Arr.Except(list1_M, list2_M);
             Log.Debug(list_M.ToJson());
@@ -88,7 +88,7 @@ namespace MM.Test.Base
         /// 获取值
         /// </summary>
         [Fact]
-        public void GetStr()
+        private void GetStr()
         {
             var list = _Arr.GetStr(list1_M, "Name");
             Log.Debug(list.ToJson());
@@ -99,9 +99,9 @@ namespace MM.Test.Base
         /// 获取值
         /// </summary>
         [Fact]
-        public void GetInt()
+        private void GetInt()
         {
-            var list = _Arr.GetStr(list1_M, "Name");
+            var list = _Arr.GetInt(list1_M, "Name");
             Log.Debug(list.ToJson());
             Assert.True(list.Count > 0);
         }
@@ -109,51 +109,45 @@ namespace MM.Test.Base
         /// <summary>
         /// 获取值
         /// </summary>
-        /// <typeparam name="T">泛型</typeparam>
-        /// <param name="list">列表</param>
-        /// <param name="key">对应键</param>
-        /// <returns>返回所有对应键值</returns>
-        public decimal Sum<T>(IEnumerable<T> list, string key)
+        [Fact]
+        private void Sum()
         {
-            return list.Sum(key);
+            var height = _Arr.Sum(list1_M, "Height");
+            Log.Debug(height.ToString());
+            Assert.True(height > 0);
         }
 
         /// <summary>
         /// 获取值
         /// </summary>
-        /// <typeparam name="T">泛型</typeparam>
-        /// <param name="list">列表</param>
-        /// <param name="key">对应键</param>
-        /// <returns>返回所有对应键值</returns>
-        public List<object> GetValues<T>(List<T> list, string key)
+        [Fact]
+        private void GetValues()
         {
-            return list.GetValues(key);
+            var list = _Arr.GetValues(list1_M, "Passowrd");
+            Log.Debug(list.ToJson());
+            Assert.True(list.Count > 0);
         }
 
         /// <summary>
         /// 获取值
         /// </summary>
-        /// <typeparam name="T">泛型</typeparam>
-        /// <param name="list">列表</param>
-        /// <param name="key">对应键</param>
-        /// <param name="value">判断值</param>
-        /// <returns>返回所有对应键值</returns>
-        public List<T> Get<T>(IEnumerable<T> list, string key, object value)
+        [Fact]
+        private void Get()
         {
-            return list.Get(key, value);
+            var list = _Arr.Get(list1_M, "Passowrd", "asd");
+            Log.Debug(list.ToJson());
+            Assert.True(list.Count > 0);
         }
 
         /// <summary>
         /// 获取值——第一个匹配对象
         /// </summary>
-        /// <typeparam name="T">泛型</typeparam>
-        /// <param name="list">列表</param>
-        /// <param name="key">对应键</param>
-        /// <param name="value">判断值</param>
-        /// <returns>返回所有对应键值</returns>
-        public T GetFirst<T>(IEnumerable<T> list, string key, object value)
+        [Fact]
+        public void GetFirst()
         {
-            return list.GetFirst(key, value);
+            var m = _Arr.GetFirst(list1_M, "Passowrd", "asd");
+            Log.Debug(m.ToJson());
+            Assert.True(m.Age > 0);
         }
 
         /// <summary>
@@ -303,7 +297,7 @@ namespace MM.Test.Base
         /// <summary>
         /// 名称
         /// </summary>
-        public string Name { get; set; }
+        public string Name     { get; set; }
 
         /// <summary>
         /// 密码
@@ -313,6 +307,11 @@ namespace MM.Test.Base
         /// <summary>
         /// 年龄
         /// </summary>
-        public int Age { get; set; } = 0;
+        public int Age         { get; set; } = 0;
+
+        /// <summary>
+        /// 身高
+        /// </summary>
+        public decimal Height  { get; set; } = 0;
     }
 }
