@@ -258,14 +258,14 @@ namespace MM.Helper.Base
         }
 
         /// <summary>
-        /// 获取前几个集合
+        /// 获取前几个成员
         /// </summary>
         /// <param name="list">列表1</param>
-        /// <param name="index">索引</param>
+        /// <param name="num">获取数</param>
         /// <returns>返回交集列表</returns>
-        public List<T> Take<T>(IEnumerable<T> list, int index)
+        public List<T> Take<T>(IEnumerable<T> list, int num)
         {
-            return list.Take(index).ToList();
+            return list.Take(num).ToList();
         }
 
         /// <summary>

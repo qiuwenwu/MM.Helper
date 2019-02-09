@@ -15,24 +15,24 @@ namespace System
         /// <returns>返回文件全名</returns>
         public static string ToFullName(this string fileName, string dir = "")
         {
-            var ret = "";
-            if (fileName.StartsWith("./"))
+            var file = fileName.Replace("/", "\\");
+            if (file.StartsWith(@".\"))
             {
-                ret = dir + fileName.Substring(2);
+                file = dir + file.Substring(2);
             }
-            else if (fileName.StartsWith("../"))
+            else if (file.StartsWith(@"..\"))
             {
-                ret = dir + fileName;
+                file = dir + @"..\" + file;
             }
-            else if (fileName.StartsWith("/"))
+            else if (file.StartsWith(@"\"))
             {
-                ret = Cache._RunPath + fileName.Substring(1);
+                file = Cache._Path.Web + file.Substring(1);
             }
-            else
+            else if (file.StartsWith(@"~\"))
             {
-                ret = Cache._RunPath + fileName;
+                file = Cache._Path.Template + Cache._Theme + "\\" + file.Substring(2);
             }
-            return ret;
+            return file.ToLower();
         }
     }
 }

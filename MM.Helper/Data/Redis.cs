@@ -1,5 +1,4 @@
-﻿using MM.Helper.Interfaces;
-using ServiceStack.Redis;
+﻿using ServiceStack.Redis;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,9 +14,9 @@ namespace MM.Helper.Data
     {
         #region 属性
         /// <summary>
-        /// 默认连接字符串，当LinkStr为空时使用该连接
+        /// 默认连接字符串，当ConnStr为空时使用该连接
         /// </summary>
-        public static string LinkStr_default = "asd123@127.0.0.1:6379";
+        public static string connStr_default = "asd123@127.0.0.1:6379";
 
         /// <summary>
         /// 错误信息
@@ -25,14 +24,14 @@ namespace MM.Helper.Data
         public string Ex              { get; set; } = string.Empty;
 
         /// <summary>
-        /// 链接字符串
+        /// 连接字符串
         /// </summary>
-        public string LinkStr         { get; set; }
+        public string ConnStr         { get; set; } = connStr_default;
 
         /// <summary>
         /// 连接的数据库序号
         /// </summary>
-        public long Db                { get; set; } = 0;
+        public long DB                { get; set; } = 0;
 
         /// <summary>
         /// 键前缀
@@ -42,7 +41,7 @@ namespace MM.Helper.Data
         /// <summary>
         /// 汇集Redis客户端管理器
         /// </summary>
-        private PooledRedisClientManager _Instance;
+        private PooledRedisClientManager conn;
 
         /// <summary>
         /// Rdeis通讯接口
@@ -66,42 +65,56 @@ namespace MM.Helper.Data
         }
 
         /// <summary>
+        /// 设置当前数据库
+        /// </summary>
+        /// <param name="db">数据库索引</param>
+        public void SetDB(long db)
+        {
+            DB = db;
+        }
+
+        /// <summary>
+        /// 设置当前数据库
+        /// </summary>
+        public long GetDB()
+        {
+            return DB;
+        }
+
+        /// <summary>
         /// 初始化
         /// </summary>
-        /// <param name="linkStr">链接字符串</param>
-        public void Init(string linkStr = null)
+        /// <param name="connStr">链接字符串</param>
+        public void Init(string connStr = null)
         {
             // 如果初始化参数为空，使用默认参数
-            if (string.IsNullOrEmpty(linkStr)) {
-                linkStr = LinkStr_default;
-            }
-
-            if (!string.IsNullOrEmpty(linkStr))
-            {
-                if (LinkStr.Contains(";"))
+            if (!string.IsNullOrEmpty(connStr)) {
+                if (ConnStr.Contains(";"))
                 {
-                    var m = ToLink(linkStr);
-                    LinkStr = string.Format("{0}@{1}:{2}", m.Password, m.Server, m.Port);
-                    if (long.TryParse(m.Database, out var db)) {
-                        Db = db;
+                    var m = ToLink(connStr);
+                    ConnStr = string.Format("{0}@{1}:{2}", m.Password, m.Server, m.Port);
+                    if (long.TryParse(m.Database, out var db))
+                    {
+                        DB = db;
                     }
                 }
-                else {
-                    LinkStr = linkStr;
-                }
-                _Instance = new PooledRedisClientManager(10000, 10, new string[] { LinkStr })
+                else
                 {
-                    ConnectTimeout = 1200000 // 1000 * 60 * 20
-                };
+                    ConnStr = connStr;
+                }
             }
+            conn = new PooledRedisClientManager(10000, 10, new string[] { ConnStr })
+            {
+                ConnectTimeout = 1200000 // 1000 * 60 * 20
+            };
         }
 
         /// <summary>
         /// 开启连接
         /// </summary>
         public void Open() {
-            _Redis = _Instance.GetClient();
-            _Redis.Db = Db;
+            _Redis = conn.GetClient();
+            _Redis.Db = DB;
         }
 
         /// <summary>
@@ -183,10 +196,10 @@ namespace MM.Helper.Data
                 _Redis.Dispose();
                 _Redis = null;
             }
-            if (_Instance != null)
+            if (conn != null)
             {
-                _Instance.Dispose();
-                _Instance = null;
+                conn.Dispose();
+                conn = null;
             }
         }
 
@@ -364,7 +377,7 @@ namespace MM.Helper.Data
             bool bl = false;
             try
             {
-                using (var client = _Instance.GetClient())
+                using (var client = conn.GetClient())
                 {
                     bl = client.ContainsKey(_Prefix + key);
                 }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using MM.Helper.Interfaces;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,8 +22,12 @@ namespace MM.Helper.Data
         /// <summary>
         /// 键前缀
         /// </summary>
-        public string _Prefix = "mm_";
+        private string _Prefix = "mm_";
 
+        /// <summary>
+        /// 数据库
+        /// </summary>
+        public long DB { get; set; } = 0;
 
         #region 初始
         /// <summary>
@@ -38,6 +41,23 @@ namespace MM.Helper.Data
                 _Prefix = key_prefix;
             }
             return _Prefix;
+        }
+
+        /// <summary>
+        /// 设置当前数据库
+        /// </summary>
+        /// <param name="db">数据库索引</param>
+        public void SetDB(long db)
+        {
+            DB = db;
+        }
+
+        /// <summary>
+        /// 设置当前数据库
+        /// </summary>
+        public long GetDB()
+        {
+            return DB;
         }
 
         /// <summary>

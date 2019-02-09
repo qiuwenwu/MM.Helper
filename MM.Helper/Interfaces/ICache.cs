@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MM.Helper.Interfaces
+namespace MM.Helper.Data
 {
     /// <summary>
     /// 缓存类接口
@@ -20,6 +20,17 @@ namespace MM.Helper.Interfaces
         /// </summary>
         /// <param name="key_prefix">键前缀名, 为空则获取前缀</param>
         string Head(string key_prefix = null);
+
+        /// <summary>
+        /// 设置当前数据库
+        /// </summary>
+        /// <param name="db">数据库索引</param>
+        void SetDB(long db);
+
+        /// <summary>
+        /// 设置当前数据库
+        /// </summary>
+        long GetDB();
         #endregion
 
 
