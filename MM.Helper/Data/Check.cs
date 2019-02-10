@@ -63,7 +63,22 @@ namespace MM.Helper.Data
                             var len = str.Length;
                             var max = l.Max;
                             var min = l.Min;
-                            if (max < len || len < min) {
+                            if (min < 0 && max > 0)
+                            {
+                                // 当min小于0时，只判断max
+                                if (max < len)
+                                {
+                                    msg = string.Format(l.Message_max, key, max);
+                                }
+                            }
+                            else if (min > 0 && max <= 0) {
+                                // 当max小于等于0时，只判断min
+                                if (min > len)
+                                {
+                                    msg = string.Format(l.Message_min, key, min);
+                                }
+                            }
+                            else if (max < len || len < min) {
                                 msg = string.Format(l.Message, key, min, max);
                             }
                         }
@@ -138,7 +153,23 @@ namespace MM.Helper.Data
                             {
                                 var max = c.Max;
                                 var min = c.Min;
-                                if (min > num || num > max)
+                                if (min < 0 && max > 0)
+                                {
+                                    // 当min小于0时，只判断max
+                                    if (max < num)
+                                    {
+                                        msg = string.Format(c.Message_max, key, max);
+                                    }
+                                }
+                                else if (min > 0 && max <= 0)
+                                {
+                                    // 当max小于等于0时，只判断min
+                                    if (min > num)
+                                    {
+                                        msg = string.Format(c.Message_min, key, min);
+                                    }
+                                }
+                                else if (min > num || num > max)
                                 {
                                     msg = string.Format(c.Message, key, min, max);
                                 }
@@ -160,7 +191,23 @@ namespace MM.Helper.Data
                         {
                             var minT = d.Min;
                             var maxT = d.Max;
-                            if (minT.ToTime() > time || time > maxT.ToTime()) {
+                            if (string.IsNullOrEmpty(minT) && !string.IsNullOrEmpty(maxT))
+                            {
+                                // 当min小于0时，只判断max
+                                if (maxT.ToTime() < time)
+                                {
+                                    msg = string.Format(d.Message_max, key, maxT);
+                                }
+                            }
+                            else if (!string.IsNullOrEmpty(minT) && string.IsNullOrEmpty(maxT))
+                            {
+                                // 当max小于等于0时，只判断min
+                                if (minT.ToTime() > time)
+                                {
+                                    msg = string.Format(d.Message_min, key, minT);
+                                }
+                            }
+                            else if (minT.ToTime() > time || time > maxT.ToTime()) {
                                 msg = string.Format(d.Message, key, minT, maxT);
                             }
                         }
@@ -290,6 +337,35 @@ namespace MM.Helper.Data
                 }
             }
             return msg;
+        }
+
+        /// <summary>
+        /// 验证参数
+        /// </summary>
+        public ParamModel New() {
+            return new ParamModel() { };
+        }
+
+        /// <summary>
+        /// 验证模型示例
+        /// </summary>
+        /// <returns>返回验证模型示例</returns>
+        public ParamModel Demo() {
+            return new ParamModel() {
+                Description = "这是一个测试的参数模型",
+                CheckPath = "./test.param.json",
+                Filter = false,
+                DataType = new DataTypeModel() { Format = "string" },
+                DateTime = new DateTimeModel(),
+                Different = new DifferentModel() { Field = "username" },
+                Extension = new ExtensionModel() { Format = "xls|xlsx|csv" },
+                Identical = new IdenticalModel() { Field = "password_confirm" },
+                NotEmpty = new NotEmptyModel() { },
+                Range = new RangeModel() { Min = 0, Max = 100 },
+                Remote = new RemoteModel() { Url = "/api/user_check" },
+                Regex = new RegexModel() { Format = "[a-zA-Z0-9]+" },
+                StrLen = new StrLenModel() { Min = 0, Max = 255 }
+            };
         }
     }
 }

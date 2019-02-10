@@ -108,7 +108,7 @@ namespace MM.Helper.Net
             var ret = PostApi<ResModel>(Host + path, param);
             if (ret == null)
             {
-                ret = new ResModel() { Error = 10000, Msg = "服务器连接失败" };
+                ret = new ResModel() { Error = new ErrorModel() };
             }
             return ret;
         }
@@ -124,35 +124,94 @@ namespace MM.Helper.Net
             var ret = GetApi<ResModel>(Host + path, param);
             if (ret == null)
             {
-                ret = new ResModel() { Error = 10000, Msg = "服务器连接失败" };
+                ret = new ResModel() { Error = new ErrorModel() };
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// Rpc请求
+        /// </summary>
+        /// <param name="method">方法</param>
+        /// <param name="param">参数</param>
+        /// <param name="id">序号</param>
+        /// <returns>返回响应结果模型</returns>
+        public ResModel Rpc(string method, object param, string id = "")
+        {
+            var ret = PostApi<ResModel>(Host, new ReqModel() { ID = id, Method = method, Params = param });
+            if (ret == null)
+            {
+                ret = new ResModel() { Error = new ErrorModel() };
             }
             return ret;
         }
     }
 
     /// <summary>
-    /// 响应模型
+    /// Rpc请求模型
     /// </summary>
-    public class ResModel {
+    public class ReqModel
+    {
+        /// <summary>
+        /// rpc版本
+        /// </summary>
+        public string JsonRPC { get; set; }
+
         /// <summary>
         /// 请求序号
         /// </summary>
-        public int ID { get; set; }
-        
+        public string ID      { get; set; }
+
         /// <summary>
-        /// 错误提示
+        /// 方法
         /// </summary>
-        public string Msg { get; set; }
+        public string Method  { get; set; }
+
+        /// <summary>
+        /// 参数
+        /// </summary>
+        public object Params  { get; set; }
+    }
+
+    /// <summary>
+    /// 响应模型
+    /// </summary>
+    public class ResModel
+    {
+        /// <summary>
+        /// rpc版本
+        /// </summary>
+        public string JsonRPC   { get; set; }
+
+        /// <summary>
+        /// 请求序号
+        /// </summary>
+        public string ID        { get; set; }
 
         /// <summary>
         /// 响应结果
         /// </summary>
-        public object Data { get; set; }
+        public object Result    { get; set; }
 
         /// <summary>
         /// 错误码
         /// </summary>
-        public int Error { get; set; }
+        public ErrorModel Error { get; set; } 
+    }
+
+    /// <summary>
+    /// 错误模型
+    /// </summary>
+    public class ErrorModel
+    {
+        /// <summary>
+        /// 错误码
+        /// </summary>
+        public int Code       { get; set; } = 10000;
+
+        /// <summary>
+        /// 错误提示
+        /// </summary>
+        public string Message { get; set; } = "服务端业务逻辑错误";
     }
 }
-

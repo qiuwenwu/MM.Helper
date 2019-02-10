@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 
 namespace MM.Helper.Models
 {
@@ -8,22 +9,34 @@ namespace MM.Helper.Models
     public class DateTimeModel
     {
         /// <summary>
-        /// 错误提示
-        /// </summary>
-        [JsonProperty("message")]
-        public string Message { get; set; } = "{0}格式不正确，必须为“年-月-日 时:分:秒”格式，并且在{1}到{2}之间";
-
-        /// <summary>
         /// 最小时间，例如：1970-01-01 00:00:00
         /// </summary>
         [JsonProperty("min")]
-        public string Min     { get; set; }
+        public string Min         { get; set; } = "1970-01-01 00:00:00";
 
         /// <summary>
         /// 最大时间，例如：2019-12-31 00:00:00
         /// </summary>
         [JsonProperty("max")]
-        public string Max     { get; set; }
+        public string Max         { get; set; } // = DateTime.Now.ToString("yyyy-MM-dd, HH:mm:ss");
+
+        /// <summary>
+        /// 错误提示
+        /// </summary>
+        [JsonProperty("message")]
+        public string Message     { get; set; } = "{0}格式不正确，必须为“年-月-日 时:分:秒”格式，并且在{1}到{2}之间";
+
+        /// <summary>
+        /// 错误提示
+        /// </summary>
+        [JsonProperty("message_min")]
+        public string Message_min { get; set; } = "{0}格式不正确，必须为“年-月-日 时:分:秒”格式，并且是{1}之后的时间";
+
+        /// <summary>
+        /// 错误提示
+        /// </summary>
+        [JsonProperty("message_max")]
+        public string Message_max { get; set; } = "{0}格式不正确，必须为“年-月-日 时:分:秒”格式，并且是{1}之前的时间";
     }
 
     /// <summary>
@@ -32,22 +45,34 @@ namespace MM.Helper.Models
     public class StrLenModel
     {
         /// <summary>
-        /// 错误提示
-        /// </summary>
-        [JsonProperty("message")]
-        public string Message { get; set; } = "{0}必须在{1}-{2}个字符长度之间";
-
-        /// <summary>
         /// 最小值
         /// </summary>
         [JsonProperty("min")]
-        public int Min        { get; set; }
+        public int Min            { get; set; }
 
         /// <summary>
         /// 最大值
         /// </summary>
         [JsonProperty("max")]
-        public int Max        { get; set; }
+        public int Max            { get; set; }
+
+        /// <summary>
+        /// 错误提示
+        /// </summary>
+        [JsonProperty("message")]
+        public string Message     { get; set; } = "{0}必须在{1}-{2}个字符长度之间";
+
+        /// <summary>
+        /// 错误提示——最小
+        /// </summary>
+        [JsonProperty("message_min")]
+        public string Message_min { get; set; } = "{0}必须小于{1}个字符";
+
+        /// <summary>
+        /// 错误提示——最大
+        /// </summary>
+        [JsonProperty("message_max")]
+        public string Message_max { get; set; } = "{0}必须大于{1}个字符";
     }
 
     /// <summary>
@@ -56,22 +81,34 @@ namespace MM.Helper.Models
     public class RangeModel
     {
         /// <summary>
-        /// 错误提示
-        /// </summary>
-        [JsonProperty("message")]
-        public string Message { get; set; } = "{0}数值范围必须在{1}-{2}之间";
-
-        /// <summary>
         /// 最小值
         /// </summary>
         [JsonProperty("min")]
-        public decimal Min    { get; set; }
+        public decimal Min        { get; set; }
 
         /// <summary>
         /// 最大值
         /// </summary>
         [JsonProperty("max")]
-        public decimal Max    { get; set; }
+        public decimal Max        { get; set; }
+
+        /// <summary>
+        /// 错误提示
+        /// </summary>
+        [JsonProperty("message")]
+        public string Message     { get; set; } = "{0}数值范围必须在{1}-{2}之间";
+
+        /// <summary>
+        /// 错误提示——最小
+        /// </summary>
+        [JsonProperty("message_min")]
+        public string Message_min { get; set; } = "{0}必须小于{1}";
+
+        /// <summary>
+        /// 错误提示——最大
+        /// </summary>
+        [JsonProperty("message_max")]
+        public string Message_max { get; set; } = "{0}必须大于{1}";
     }
 
     /// <summary>
