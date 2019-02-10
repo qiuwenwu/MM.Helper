@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace MM.Helper.Net
 {
@@ -155,21 +156,25 @@ namespace MM.Helper.Net
         /// <summary>
         /// rpc版本
         /// </summary>
+        [JsonProperty("jsonrpc")]
         public string JsonRPC { get; set; }
 
         /// <summary>
         /// 请求序号
         /// </summary>
+        [JsonProperty("id")]
         public string ID      { get; set; }
 
         /// <summary>
         /// 方法
         /// </summary>
+        [JsonProperty("method")]
         public string Method  { get; set; }
 
         /// <summary>
         /// 参数
         /// </summary>
+        [JsonProperty("params")]
         public object Params  { get; set; }
     }
 
@@ -181,21 +186,25 @@ namespace MM.Helper.Net
         /// <summary>
         /// rpc版本
         /// </summary>
+        [JsonProperty("jsonrpc")]
         public string JsonRPC   { get; set; }
 
         /// <summary>
         /// 请求序号
         /// </summary>
+        [JsonProperty("id")]
         public string ID        { get; set; }
 
         /// <summary>
         /// 响应结果
         /// </summary>
+        [JsonProperty("result")]
         public object Result    { get; set; }
 
         /// <summary>
         /// 错误码
         /// </summary>
+        [JsonProperty("error")]
         public ErrorModel Error { get; set; } 
     }
 
@@ -207,11 +216,13 @@ namespace MM.Helper.Net
         /// <summary>
         /// 错误码
         /// </summary>
+        [JsonProperty("code")]
         public int Code       { get; set; } = 10000;
 
         /// <summary>
         /// 错误提示
         /// </summary>
+        [JsonProperty("message")]
         public string Message { get; set; } = "服务端业务逻辑错误";
     }
 }

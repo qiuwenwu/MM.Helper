@@ -1,4 +1,5 @@
 ﻿using MM.Helper.Base;
+using MM.Helper.Data;
 using System;
 using System.Collections.Generic;
 
@@ -17,9 +18,25 @@ namespace MM.Helper.Cmd
         
         static void Main(string[] args)
         {
-            var count = _Arr.Sum(list1_M, "Height");
-            Console.WriteLine(count);
+            //var count = _Arr.Sum(list1_M, "Height");
+            //Console.WriteLine(count);
+            Check_password();
             Console.ReadLine();
+        }
+
+        public static void Check_password()
+        {
+            var help = new Param();
+            var dict = help.DemoDict();
+            var paramDt = new Dictionary<string, object>()
+            {
+                { "username", "admin" },
+                { "password", "asd123+=" }
+            };
+            dict["username"].Remote = null;
+            var msg = help.Check(dict, paramDt);
+            Console.WriteLine(paramDt.ToJson() + msg);
+            Console.WriteLine(!string.IsNullOrEmpty(msg));
         }
     }
 

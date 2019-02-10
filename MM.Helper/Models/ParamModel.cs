@@ -15,6 +15,12 @@ namespace MM.Helper.Models
         public string Title             { get; set; }
 
         /// <summary>
+        /// 名称
+        /// </summary>
+        [JsonProperty("name")]
+        public string Name              { get; set; }
+
+        /// <summary>
         /// 描述
         /// </summary>
         [JsonProperty("description")]
@@ -27,10 +33,10 @@ namespace MM.Helper.Models
         public bool Filter              { get; set; } = false;
 
         /// <summary>
-        /// 验证方式路径
+        /// 分割字符串,用于多参数查询
         /// </summary>
-        [JsonProperty("checkPath")]
-        public string CheckPath         { get; set; }
+        [JsonProperty("split")]
+        public string Split             { get; set; } = "|";
 
         /// <summary>
         /// 是否空值验证

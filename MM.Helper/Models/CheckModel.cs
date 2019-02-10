@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
 
 namespace MM.Helper.Models
 {
@@ -192,7 +191,7 @@ namespace MM.Helper.Models
         /// 错误提示
         /// </summary>
         [JsonProperty("message")]
-        public string Message { get; set; } = "{0}必须与{1}不同";
+        public string Message { get; set; } = "{0}不能与{1}相同";
     }
 
     /// <summary>

@@ -10,7 +10,7 @@ namespace MM.Helper.Data
     /// <summary>
     /// 验证类
     /// </summary>
-    public class Check
+    public class Param
     {
         private static Https http = new Https();
         
@@ -18,15 +18,31 @@ namespace MM.Helper.Data
         /// 验证参数
         /// </summary>
         /// <param name="v">验证模型</param>
-        /// <param name="key">参数名</param>
-        /// <param name="value">参数值</param>
+        /// <param name="value">验证值</param>
         /// <returns>验证通过返回null，否则返回错误提示</returns>
-        public string Param(ParamModel v, string key, object value) {
+        public string Check(ParamModel v, object value) {
+            var msg = "";
+            // 对于多参数传递验证
+            if (!string.IsNullOrEmpty(v.Split) && value is string) {
+                var val = value.ToString();
+                if (val.Contains(v.Split)) {
+                    var arr = val.Split(v.Split);
+                    foreach (var o in arr) {
+                        msg = Check(v, o);
+                        if (!string.IsNullOrEmpty(msg))
+                        {
+                            break;
+                        }
+                    }
+                    return msg;
+                }
+            }
+            string name = string.Format("{0}({1})",v.Title, v.Name);
             if (v.NotEmpty != null)
             {
                 if (value == null || value.ToString() == "")
                 {
-                    return string.Format(v.NotEmpty.Message, key);
+                    return string.Format(v.NotEmpty.Message, name);
                 }
             }
             if (value == null)
@@ -34,7 +50,7 @@ namespace MM.Helper.Data
                 return null;
             }
             var err = false;
-            var msg = "";
+
             var type = v.DataType.Format.ToLower();
             try
             {
@@ -44,14 +60,14 @@ namespace MM.Helper.Data
                         var list = value.ToArr();
                         if (v.SubParam != null && v.SubParam.Count > 0 && list.Count > 0)
                         {
-                            msg = Param(v.SubParam, list[0].ToDict());
+                            msg = Check(v.SubParam, list[0].ToDict());
                         }
                         break;
                     case "object":
                         var dict = value.ToDict();
                         if (v.SubParam != null && v.SubParam.Count > 0 && dict.Count > 0)
                         {
-                            msg = Param(v.SubParam, dict);
+                            msg = Check(v.SubParam, dict);
                         }
                         break;
                     case "string":
@@ -68,51 +84,56 @@ namespace MM.Helper.Data
                                 // 当min小于0时，只判断max
                                 if (max < len)
                                 {
-                                    msg = string.Format(l.Message_max, key, max);
+                                    msg = string.Format(l.Message_max, name, max);
                                 }
                             }
                             else if (min > 0 && max <= 0) {
                                 // 当max小于等于0时，只判断min
                                 if (min > len)
                                 {
-                                    msg = string.Format(l.Message_min, key, min);
+                                    msg = string.Format(l.Message_min, name, min);
                                 }
                             }
                             else if (max < len || len < min) {
-                                msg = string.Format(l.Message, key, min, max);
+                                msg = string.Format(l.Message, name, min, max);
                             }
                         }
-
-                        // 验证字符串后缀名
-                        var e = v.Extension;
-                        if (e != null)
+                        if (string.IsNullOrEmpty(msg))
                         {
-                            var fs = e.Format.Split('|');
-                            str = str.ToLower();
-                            var yes = false;
-                            foreach (var o in fs) {
-                                if (str.EndsWith(o))
+                            // 正则验证
+                            var x = v.Regex;
+                            if (x != null)
+                            {
+                                var text = x.Format;
+                                if (!string.IsNullOrEmpty(text))
                                 {
-                                    yes = true;
+                                    var rx = new Regex(text);
+                                    if (!rx.IsMatch(str))
+                                    {
+                                        msg = string.Format(x.Message, name);
+                                    }
                                 }
                             }
-                            if (!yes)
-                            {
-                                msg = string.Format(e.Message, key, e.Format);
-                            }
                         }
-
-                        // 正则验证
-                        var x = v.Regex;
-                        if (x != null)
+                        if (string.IsNullOrEmpty(msg))
                         {
-                            var text = x.Format;
-                            if (!string.IsNullOrEmpty(text))
+                            // 验证字符串后缀名
+                            var e = v.Extension;
+                            if (e != null)
                             {
-                                var rx = new Regex(text);
-                                if (!rx.IsMatch(str))
+                                var fs = e.Format.Split('|');
+                                str = str.ToLower();
+                                var yes = false;
+                                foreach (var o in fs)
                                 {
-                                    msg = string.Format(x.Message, key);
+                                    if (str.EndsWith(o))
+                                    {
+                                        yes = true;
+                                    }
+                                }
+                                if (!yes)
+                                {
+                                    msg = string.Format(e.Message, name, e.Format);
                                 }
                             }
                         }
@@ -158,7 +179,7 @@ namespace MM.Helper.Data
                                     // 当min小于0时，只判断max
                                     if (max < num)
                                     {
-                                        msg = string.Format(c.Message_max, key, max);
+                                        msg = string.Format(c.Message_max, name, max);
                                     }
                                 }
                                 else if (min > 0 && max <= 0)
@@ -166,12 +187,12 @@ namespace MM.Helper.Data
                                     // 当max小于等于0时，只判断min
                                     if (min > num)
                                     {
-                                        msg = string.Format(c.Message_min, key, min);
+                                        msg = string.Format(c.Message_min, name, min);
                                     }
                                 }
                                 else if (min > num || num > max)
                                 {
-                                    msg = string.Format(c.Message, key, min, max);
+                                    msg = string.Format(c.Message, name, min, max);
                                 }
                             }
                         }
@@ -196,7 +217,7 @@ namespace MM.Helper.Data
                                 // 当min小于0时，只判断max
                                 if (maxT.ToTime() < time)
                                 {
-                                    msg = string.Format(d.Message_max, key, maxT);
+                                    msg = string.Format(d.Message_max, name, maxT);
                                 }
                             }
                             else if (!string.IsNullOrEmpty(minT) && string.IsNullOrEmpty(maxT))
@@ -204,11 +225,11 @@ namespace MM.Helper.Data
                                 // 当max小于等于0时，只判断min
                                 if (minT.ToTime() > time)
                                 {
-                                    msg = string.Format(d.Message_min, key, minT);
+                                    msg = string.Format(d.Message_min, name, minT);
                                 }
                             }
                             else if (minT.ToTime() > time || time > maxT.ToTime()) {
-                                msg = string.Format(d.Message, key, minT, maxT);
+                                msg = string.Format(d.Message, name, minT, maxT);
                             }
                         }
                         else
@@ -227,7 +248,7 @@ namespace MM.Helper.Data
             }
             if (err)
             {
-                return string.Format(v.DataType.Message, key);
+                return string.Format(v.DataType.Message, name, v.DataType.Format);
             }
             else if(!string.IsNullOrEmpty(msg))
             {
@@ -243,7 +264,7 @@ namespace MM.Helper.Data
                 {
                     var jobj = new JObject
                     {
-                        { key, value.ToJson() }
+                        { name, value.ToJson() }
                     };
 
                     var jsonStr = http.Post(url, jobj.ToString());
@@ -251,24 +272,13 @@ namespace MM.Helper.Data
                     {
                         try
                         {
-                            jobj = JObject.Parse(jsonStr);
-                            if (jobj.TryGetValue("data", out var kA))
+                            var m = jsonStr.ToObj<ResModel>();
+                            if (m.Error != null)
                             {
-                                if (kA.HasValues)
+                                msg = m.Error.Message;
+                                if (string.IsNullOrEmpty(msg))
                                 {
-                                    var kB = kA.Value<bool?>("bl");
-                                    //参数不正确
-                                    if (kB == false)
-                                    {
-                                        if (jobj.TryGetValue("msg", out var tk))
-                                        {
-                                            msg = tk.ToString();
-                                        }
-                                        else
-                                        {
-                                            msg = string.Format(r.Message, key);
-                                        }
-                                    }
+                                    msg = string.Format(r.Message, name);
                                 }
                             }
                         }
@@ -288,12 +298,13 @@ namespace MM.Helper.Data
         /// <param name="checkDt">验证模型字典</param>
         /// <param name="paramDt">参数字典</param>
         /// <returns>验证通过返回null，否则返回错误提示</returns>
-        public string Param(Dictionary<string, ParamModel> checkDt, Dictionary<string, object> paramDt)
+        public string Check(Dictionary<string, ParamModel> checkDt, Dictionary<string, object> paramDt)
         {
             var msg = "";
             foreach (var o in checkDt) {
                 var key = o.Key.ToLower();
                 var v = o.Value;
+                var name = string.Format("{0}({1})", v.Title, v.Name);
                 if (paramDt.ContainsKey(key))
                 {
                     var val = paramDt[key];
@@ -303,7 +314,7 @@ namespace MM.Helper.Data
                         var field = v.Identical.Field;
                         if (!paramDt.ContainsKey(field) || val != paramDt[field])
                         {
-                            msg = string.Format(v.Identical.Message, o.Key, field);
+                            msg = string.Format(v.Identical.Message, name, field);
                             break;
                         }
                     }
@@ -314,12 +325,12 @@ namespace MM.Helper.Data
                         var field = v.Different.Field;
                         if (paramDt.ContainsKey(field) && val == paramDt[field])
                         {
-                            msg = string.Format(v.Different.Message, o.Key, field);
+                            msg = string.Format(v.Different.Message, name, field);
                             break;
                         }
                     }
 
-                    msg = Param(v, o.Key, val);
+                    msg = Check(v, val);
                     if (!string.IsNullOrEmpty(msg))
                     {
                         break;
@@ -327,7 +338,7 @@ namespace MM.Helper.Data
                 }
                 else if(v.NotEmpty != null)
                 {
-                    msg = string.Format(v.NotEmpty.Message, o.Key);
+                    msg = string.Format(v.NotEmpty.Message, name);
                     break;
                 }
 
@@ -340,10 +351,18 @@ namespace MM.Helper.Data
         }
 
         /// <summary>
-        /// 验证参数
+        /// 新建验证参数模型
         /// </summary>
         public ParamModel New() {
             return new ParamModel() { };
+        }
+
+        /// <summary>
+        /// 新建验证参数
+        /// </summary>
+        public Dictionary<string, ParamModel> NewDict()
+        {
+            return new Dictionary<string, ParamModel>() { };
         }
 
         /// <summary>
@@ -352,20 +371,98 @@ namespace MM.Helper.Data
         /// <returns>返回验证模型示例</returns>
         public ParamModel Demo() {
             return new ParamModel() {
+                Title = "测试参数",
+                Name = "test",
                 Description = "这是一个测试的参数模型",
-                CheckPath = "./test.param.json",
                 Filter = false,
                 DataType = new DataTypeModel() { Format = "string" },
                 DateTime = new DateTimeModel(),
                 Different = new DifferentModel() { Field = "username" },
                 Extension = new ExtensionModel() { Format = "xls|xlsx|csv" },
                 Identical = new IdenticalModel() { Field = "password_confirm" },
-                NotEmpty = new NotEmptyModel() { },
+                NotEmpty = new NotEmptyModel(),
                 Range = new RangeModel() { Min = 0, Max = 100 },
                 Remote = new RemoteModel() { Url = "/api/user_check" },
                 Regex = new RegexModel() { Format = "[a-zA-Z0-9]+" },
                 StrLen = new StrLenModel() { Min = 0, Max = 255 }
             };
+        }
+
+        /// <summary>
+        /// 验证模型示例
+        /// </summary>
+        /// <returns>返回验证模型示例</returns>
+        public Dictionary<string, ParamModel> DemoDict()
+        {
+            var dict = new Dictionary<string, ParamModel>() {
+                { "username", new ParamModel(){
+                        Title = "用户名",
+                        Name = "username",
+                        Description = "用户登录的名称",
+                        DataType = new DataTypeModel() { Format = "string" },
+                        NotEmpty = new NotEmptyModel(),
+                        Remote = new RemoteModel() { Url = "/api/user_check" },
+                        Regex = new RegexModel() { Format = "^[a-zA-Z0-9_]+$" },
+                        StrLen = new StrLenModel() { Min = 5, Max = 16 }
+                } },
+                { "password", new ParamModel(){
+                        Title = "密码",
+                        Name = "password",
+                        Description = "用户登录时的密码",
+                        Filter = false,
+                        DataType = new DataTypeModel() { Format = "string" },
+                        Different = new DifferentModel() { Field = "username" },
+                        Regex = new RegexModel() { Format = "^[a-zA-Z0-9]+$" },
+                        StrLen = new StrLenModel() { Min = 5, Max = 16 }
+                } },
+                { "password_confirm", new ParamModel(){
+                        Title = "确认密码",
+                        Name = "password_confirm",
+                        Description = "注册时二次输入密码，用于确认用户输入密码没有错误",
+                        Filter = true, // 过滤
+                        DataType = new DataTypeModel() { Format = "string" },
+                        Identical = new IdenticalModel() { Field = "password" }
+                } },
+                { "phone", new ParamModel(){
+                        Title = "手机",
+                        Name = "phone",
+                        Description = "用户的手机号码，可用于手机登录",
+                        DataType = new DataTypeModel() { Format = "string" },
+                        Regex = new RegexModel() { Format = "1[0-9]{10}" },
+                        StrLen = new StrLenModel() { Min = 11, Max = 11, Message = "{0}长度必须为11位数字" }
+                } },
+                { "email", new ParamModel(){
+                        Title = "电子邮箱",
+                        Name = "email",
+                        Description = "用户的电子邮箱，可以用于邮箱登录",
+                        DataType = new DataTypeModel() { Format = "string" },
+                        Extension = new ExtensionModel() { Format = "@qq.com|@163.com|@139.com", Message = "{0}仅支持{1}邮箱" },
+                        Regex = new RegexModel() { Format = "[a-zA-Z0-9_]+@[a-zA-Z0-9.]+[a-zA-Z]+" }
+                } },
+                { "icon", new ParamModel(){
+                        Title = "头像",
+                        Name = "icon",
+                        Description = "这是用户的头像，用于个性化识别用户",
+                        DataType = new DataTypeModel() { Format = "string" },
+                        Extension = new ExtensionModel() { Format = ".png|.gif|.jpg|.jpeg" },
+                        Regex = new RegexModel() { Format = "[a-zA-Z0-9:/._]+" }
+                } },
+                { "age", new ParamModel(){
+                        Title = "年龄",
+                        Name = "age",
+                        Description = "用户的年龄，用于交友搜索时",
+                        DataType = new DataTypeModel() { Format = "int" },
+                        Range = new RangeModel() { Min = 16, Max = 130 }
+                } },
+                { "birthday", new ParamModel(){
+                        Title = "生日",
+                        Name = "birthday",
+                        Description = "这是一个测试的参数模型",
+                        DataType = new DataTypeModel() { Format = "date" },
+                        DateTime = new DateTimeModel() { Min = "1950-01-01", Max = "2019-02-10" },
+                } }
+            };
+            return dict;
         }
     }
 }
