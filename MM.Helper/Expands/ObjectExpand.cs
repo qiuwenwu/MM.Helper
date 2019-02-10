@@ -35,6 +35,10 @@ namespace System
             string str = "{}";
             if (obj != null)
             {
+                if (obj is string)
+                {
+                    return str;
+                }
                 if (format)
                 {
                     if (noNull)
@@ -437,6 +441,40 @@ namespace System
             else
             {
                 return JObject.FromObject(obj);
+            }
+        }
+
+        /// <summary>
+        /// 序列化对象
+        /// </summary>
+        /// <param name="obj">对象</param>
+        /// <returns>返回Json数组</returns>
+        public static List<T> ToArr<T>(this object obj)
+        {
+            if (obj is string)
+            {
+                return obj.ToString().ToObj<List<T>>();
+            }
+            else
+            {
+                return JArray.FromObject(obj).ToObj<List<T>>();
+            }
+        }
+
+        /// <summary>
+        /// 序列化对象
+        /// </summary>
+        /// <param name="obj">对象</param>
+        /// <returns>返回Json数组</returns>
+        public static List<object> ToArr(this object obj)
+        {
+            if (obj is string)
+            {
+                return obj.ToString().ToObj<List<object>>();
+            }
+            else
+            {
+                return JArray.FromObject(obj).ToObj<List<object>>();
             }
         }
     }

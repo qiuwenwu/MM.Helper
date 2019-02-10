@@ -25,7 +25,7 @@ namespace MM.Helper.Net
 
         private static readonly string NewLine = Environment.NewLine;
 
-        private static readonly string Enconding = "<meta[^<]*charset=([^<]*)[\"']";
+        private static readonly string HtmlEnconding = "<meta[^<]*charset=([^<]*)[\"']";
 
         private static readonly string AllHtml = "([\\s\\S]*?)";
 
@@ -136,6 +136,16 @@ namespace MM.Helper.Net
         public string Title(string html)
         {
             return GetContent(html, HtmlTitle);
+        }
+
+        /// <summary>
+        /// 获取网页编码方式
+        /// </summary>
+        /// <param name="html">网页内容</param>
+        /// <returns>返回网页标题</returns>
+        public string Enconde(string html)
+        {
+            return GetContent(html, HtmlEnconding);
         }
 
         /// <summary>
